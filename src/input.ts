@@ -1,17 +1,32 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-const SCHEME = /^[a-z][a-z0-9+.-]*:/i;
+// A scheme only counts if it is followed by "//" (https://, ftp://, ...) or
+// is a known scheme that has no slashes (mailto:, tel:, ...). Otherwise
+// "quip.network:8080/x" and "localhost:5173" would read as schemes, because
+// a bare host or host:port also matches "letters, digits, dots before a colon".
+const SCHEME_WITH_SLASHES = /^[a-z][a-z0-9+.-]*:\/\//i;
+const SCHEME_PREFIX = /^([a-z][a-z0-9+.-]*):/i;
+const OPAQUE_SCHEMES = new Set(["mailto", "tel", "sms", "geo", "bitcoin", "ethereum"]);
 const PREFIX = "qrcode_quip";
 const MAX_SLUG = 60;
 const QUIP_SUFFIX = ".quip.network";
 
+function hasScheme(text: string): boolean {
+  if (SCHEME_WITH_SLASHES.test(text)) return true;
+  const match = SCHEME_PREFIX.exec(text);
+  return match !== null && OPAQUE_SCHEMES.has(match[1]!.toLowerCase());
+}
+
 /**
  * Trims the input. Adds https:// to a bare domain such as "quip.network/qvrf",
- * because phone cameras treat a code without a scheme as plain text.
+ * because phone cameras treat a code without a scheme as plain text. Leaves
+ * an email-shaped address such as "hi@quip.network" unchanged.
  */
 export function normalizeInput(raw: string): string {
   const text = raw.trim();
-  const looksLikeBareDomain = !SCHEME.test(text) && !/\s/.test(text) && text.includes(".");
+  const looksLikeEmail = text.includes("@") && !text.includes("/");
+  const looksLikeBareDomain =
+    !hasScheme(text) && !looksLikeEmail && !/\s/.test(text) && text.includes(".");
   return looksLikeBareDomain ? `https://${text}` : text;
 }
 

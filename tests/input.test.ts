@@ -13,6 +13,9 @@ describe("normalizeInput", () => {
     ["mailto:hi@quip.network", "mailto:hi@quip.network"],
     ["hello world", "hello world"],
     ["hello", "hello"],
+    ["quip.network:8080/x", "https://quip.network:8080/x"],
+    ["localhost:5173", "localhost:5173"],
+    ["hi@quip.network", "hi@quip.network"],
   ])("%j -> %j", (raw, expected) => {
     expect(normalizeInput(raw)).toBe(expected);
   });
