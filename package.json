@@ -1,0 +1,32 @@
+{
+  "name": "qrcode-quip-network",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "dev": "bunx --bun vite",
+    "build": "tsc --noEmit && bunx --bun vite build",
+    "preview": "bunx --bun vite preview",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@undecaf/zbar-wasm": "0.11.0",
+    "qrcode-generator": "2.0.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@vitest/browser-playwright": "5.0.1",
+    "eslint": "10.11.0",
+    "globals": "17.12.0",
+    "playwright": "1.63.0",
+    "prettier": "3.9.9",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.1",
+    "vite": "8.3.1",
+    "vitest": "5.0.1"
+  }
+}
