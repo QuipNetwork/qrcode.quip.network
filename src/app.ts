@@ -49,6 +49,9 @@ const TEMPLATE = `
   <div id="preview" class="preview"></div>
   <p id="status" class="status" role="status" data-state=""></p>
   <button type="button" id="download" disabled>Download PNG</button>
+  <footer class="footer">
+    <a href="https://gitlab.com/quip.network/qrcode.quip.network" rel="noopener">Source (AGPL-3.0)</a>
+  </footer>
 </main>`;
 
 export interface AppOptions {

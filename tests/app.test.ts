@@ -85,6 +85,44 @@ describe("app", () => {
     await vi.waitFor(() => expect($("#status").getAttribute("data-state")).toBe("ok"), settle);
   });
 
+  it("shows the shrunk-icon note when generate shrinks the icon", async () => {
+    await vi.waitFor(() => expect($("#status").getAttribute("data-state")).toBe("ok"), settle);
+    const mockedGenerate = vi.mocked(generateModule.generate);
+    mockedGenerate.mockResolvedValueOnce({
+      ok: true,
+      canvas: document.createElement("canvas"),
+      data: "https://links.quip.network/",
+      iconRatio: 0.16,
+      shrunk: true,
+    });
+
+    await userEvent.fill($("#url"), "https://links.quip.network/");
+    await vi.waitFor(() => {
+      expect($("#status").getAttribute("data-state")).toBe("ok");
+      expect($("#status").textContent).toContain("icon reduced to 16% of width");
+    }, settle);
+  });
+
+  it("shows the unscannable message", async () => {
+    await vi.waitFor(() => expect($("#status").getAttribute("data-state")).toBe("ok"), settle);
+    const mockedGenerate = vi.mocked(generateModule.generate);
+    mockedGenerate.mockResolvedValueOnce({ ok: false, reason: "unscannable" });
+
+    await userEvent.fill($("#url"), "https://links.quip.network/");
+    await vi.waitFor(() => expect($("#status").textContent).toBe(MESSAGES.unscannable), settle);
+    expect($<HTMLButtonElement>("#download").disabled).toBe(true);
+  });
+
+  it("shows the load-failed message", async () => {
+    await vi.waitFor(() => expect($("#status").getAttribute("data-state")).toBe("ok"), settle);
+    const mockedGenerate = vi.mocked(generateModule.generate);
+    mockedGenerate.mockResolvedValueOnce({ ok: false, reason: "load-failed" });
+
+    await userEvent.fill($("#url"), "https://links.quip.network/");
+    await vi.waitFor(() => expect($("#status").textContent).toBe(MESSAGES["load-failed"]), settle);
+    expect($<HTMLButtonElement>("#download").disabled).toBe(true);
+  });
+
   it("shows the newest input after a burst of changes", async () => {
     await userEvent.fill($("#url"), "https://links.quip.network/");
     await userEvent.click($('input[name="border"][value="black"]'));
@@ -136,9 +174,12 @@ describe("app", () => {
   });
 
   it("shuffle selects a different style", async () => {
+    await vi.waitFor(() => expect($("#status").getAttribute("data-state")).toBe("ok"), settle);
     await userEvent.click($("#shuffle"));
     expect($('.style[data-style="a-standard"]').getAttribute("aria-pressed")).toBe("false");
     expect(root.querySelectorAll('.style[aria-pressed="true"]')).toHaveLength(1);
+    // Wait for the update() the click triggers, so its work does not leak into the next test.
+    await vi.waitFor(() => expect($("#status").getAttribute("data-state")).toBe("ok"), settle);
   });
 
   it("downloads with the file name from the URL", async () => {

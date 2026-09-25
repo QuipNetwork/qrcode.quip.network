@@ -132,6 +132,16 @@ legend {
   color: #a4161a;
 }
 
+.footer {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.footer a {
+  color: inherit;
+}
+
 @media (max-width: 480px) {
   .style-list {
     grid-template-columns: repeat(4, 1fr);
