@@ -19,6 +19,15 @@ Static Vite + TypeScript site. No server code. Netlify builds it with
 prek runs format, lint, typecheck, and test before each commit
 (`prek install` once per clone).
 
+## CI
+
+`.gitlab-ci.yml` runs one `test` job on merge requests and on the default
+branch, in the `oven/bun:1.4.2` image (matching `netlify.toml`'s
+`BUN_VERSION`): `bun install --frozen-lockfile`, Playwright's Chromium
+install, then `format:check`, `lint`, `typecheck`, and `test`. This is the
+gate before a deploy; the pre-commit hook alone does not run on a merge
+commit made outside a clone with the hook installed.
+
 ## Constraints
 
 - TypeScript stays on 6.0.x. typescript-eslint 8.70.1 does not support 6.1 or later.

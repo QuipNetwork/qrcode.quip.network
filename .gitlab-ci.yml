@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+image: oven/bun:1.4.2
+
+stages:
+  - test
+
+test:
+  stage: test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
+  script:
+    - bun install --frozen-lockfile
+    - bunx playwright install --with-deps chromium
+    - bun run format:check
+    - bun run lint
+    - bun run typecheck
+    - bun run test
