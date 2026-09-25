@@ -14,6 +14,7 @@ Static Vite + TypeScript site. No server code. Netlify builds it with
     bun run lint
     bun run typecheck
     bun run format
+    bun scripts/acceptance.ts <site-url>   # download each test URL's PNG and decode it with zbarimg
 
 prek runs format, lint, typecheck, and test before each commit
 (`prek install` once per clone).
