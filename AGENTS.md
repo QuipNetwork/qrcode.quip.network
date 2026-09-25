@@ -3,7 +3,7 @@
 ## Overview
 
 Static Vite + TypeScript site. No server code. Netlify builds it with
-`bun install && bun run build` and publishes `dist`.
+`bun install --frozen-lockfile && bun run build` and publishes `dist`.
 
 ## Commands
 
@@ -14,6 +14,7 @@ Static Vite + TypeScript site. No server code. Netlify builds it with
     bun run lint
     bun run typecheck
     bun run format
+    brew install zbar    # once, for zbarimg
     bun scripts/acceptance.ts <site-url>   # download each test URL's PNG and decode it with zbarimg
 
 prek runs format, lint, typecheck, and test before each commit
@@ -32,7 +33,9 @@ commit made outside a clone with the hook installed.
 
 - TypeScript stays on 6.0.x. typescript-eslint 8.70.1 does not support 6.1 or later.
 - QR text is UTF-8. `src/render.ts` replaces the library's 8-bit default encoder.
-- Every source file starts with `// SPDX-License-Identifier: AGPL-3.0-or-later`.
+- Every source file starts with an SPDX-License-Identifier line in its
+  comment syntax (`// ...` in `.ts`/`.js`, `/* ... */` in `.css`, `<!-- ... -->`
+  in `.html`).
 
 ## Brand assets
 
