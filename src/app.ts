@@ -74,6 +74,7 @@ export function initApp(root: HTMLElement, options: AppOptions = {}): void {
   let current: Success | null = null;
   let sequence = 0;
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let controller: AbortController | undefined;
 
   const setStatus = (text: string, state: "" | "ok" | "error" | "busy") => {
     status.textContent = text;
@@ -94,6 +95,10 @@ export function initApp(root: HTMLElement, options: AppOptions = {}): void {
   };
 
   async function update(): Promise<void> {
+    clearTimeout(timer); // A direct call (border, style, shuffle) may race a pending debounce.
+    controller?.abort(); // Stop any run still in flight so it cannot publish a stale result.
+    const ac = new AbortController();
+    controller = ac;
     const id = ++sequence;
     const data = normalizeInput(input.value);
     encoded.hidden = data === "" || data === input.value.trim();
@@ -102,13 +107,15 @@ export function initApp(root: HTMLElement, options: AppOptions = {}): void {
     if (data !== "") setStatus("Checking…", "busy");
 
     try {
-      const result = await generate({ data, border, style });
+      const result = await generate({ data, border, style, signal: ac.signal });
       if (id !== sequence) return; // A newer update started while this one ran.
       if (!result.ok) {
         showFailure(MESSAGES[result.reason]);
         return;
       }
       current = result;
+      result.canvas.setAttribute("role", "img");
+      result.canvas.setAttribute("aria-label", `QR code for ${result.data}`);
       preview.replaceChildren(result.canvas);
       preview.dataset.encoded = result.data;
       const note = result.shrunk
@@ -117,6 +124,7 @@ export function initApp(root: HTMLElement, options: AppOptions = {}): void {
       setStatus(`✓ Verified scannable${note}`, "ok");
       download.disabled = false;
     } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
       if (id !== sequence) return;
       console.error(error);
       showFailure(UNEXPECTED);
@@ -125,6 +133,7 @@ export function initApp(root: HTMLElement, options: AppOptions = {}): void {
 
   const schedule = () => {
     sequence++; // Invalidate any in-flight update before it can publish a stale result.
+    controller?.abort();
     download.disabled = true;
     clearTimeout(timer);
     timer = setTimeout(() => void update(), DEBOUNCE_MS);

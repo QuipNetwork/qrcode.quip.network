@@ -46,15 +46,43 @@ describe("app", () => {
 
   it("disables the download for empty input", async () => {
     await userEvent.fill($("#url"), "");
-    await vi.waitFor(() => expect($("#preview canvas")).toBeNull(), settle);
+    await vi.waitFor(() => {
+      expect($("#preview canvas")).toBeNull();
+      expect($("#status").textContent).toBe("");
+    }, settle);
     expect($<HTMLButtonElement>("#download").disabled).toBe(true);
-    expect($("#status").textContent).toBe("");
   });
 
   it("shows the too-long message past capacity", async () => {
     await userEvent.fill($("#url"), "x".repeat(1300));
     await vi.waitFor(() => expect($("#status").textContent).toBe(MESSAGES["too-long"]), settle);
     expect($<HTMLButtonElement>("#download").disabled).toBe(true);
+  });
+
+  it("shows a busy status while generation is still running", async () => {
+    await vi.waitFor(() => expect($("#status").getAttribute("data-state")).toBe("ok"), settle);
+
+    const mockedGenerate = vi.mocked(generateModule.generate);
+    let resolvePending!: (result: Result) => void;
+    const pending = new Promise<Result>((resolve) => {
+      resolvePending = resolve;
+    });
+    mockedGenerate.mockImplementationOnce(() => pending);
+
+    await userEvent.fill($("#url"), "https://links.quip.network/");
+    await vi.waitFor(() => {
+      expect($("#status").getAttribute("data-state")).toBe("busy");
+      expect($("#status").textContent).toBe("Checking…");
+    }, settle);
+
+    resolvePending({
+      ok: true,
+      canvas: document.createElement("canvas"),
+      data: "https://links.quip.network/",
+      iconRatio: 0.22,
+      shrunk: false,
+    });
+    await vi.waitFor(() => expect($("#status").getAttribute("data-state")).toBe("ok"), settle);
   });
 
   it("shows the newest input after a burst of changes", async () => {

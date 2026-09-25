@@ -1,10 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { ICON_RATIOS, generate } from "../src/generate";
 import type { Border } from "../src/render";
 import { STYLES } from "../src/styles";
+import * as verifyModule from "../src/verify";
 import { decode, toGray } from "../src/verify";
 import { LONG_URL, TEST_URLS } from "./fixtures";
+
+vi.mock("../src/verify", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../src/verify")>();
+  return { ...actual, isScannable: vi.fn(actual.isScannable) };
+});
 
 const BORDERS: readonly Border[] = ["white", "black", "transparent"];
 
@@ -29,6 +35,22 @@ describe("generate", () => {
       ratios: [0.6],
     });
     expect(result).toEqual({ ok: false, reason: "unscannable" });
+  });
+
+  it("stops early when the signal is already aborted, without scanning", async () => {
+    const isScannableMock = vi.mocked(verifyModule.isScannable);
+    isScannableMock.mockClear();
+    const controller = new AbortController();
+    controller.abort();
+    await expect(
+      generate({
+        data: TEST_URLS[0]!,
+        border: "white",
+        style: STYLES[0]!,
+        signal: controller.signal,
+      }),
+    ).rejects.toMatchObject({ name: "AbortError" });
+    expect(isScannableMock).not.toHaveBeenCalled();
   });
 
   it("uses the full icon size for a short URL", async () => {

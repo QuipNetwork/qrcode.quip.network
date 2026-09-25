@@ -93,13 +93,19 @@ export const STRESS_TESTS: readonly {
   { name: "rotate", prepare: (canvas, scale) => toGray(canvas, scale, 7) },
 ];
 
+/** Gives the event loop a turn, so the browser can paint "Checking…" and process input. */
+const yieldToEventLoop = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
+
 /** True if every stress test decodes exactly the expected text. */
 export async function isScannable(
   canvas: HTMLCanvasElement,
   expected: string,
   scale = 1,
+  signal?: AbortSignal,
 ): Promise<boolean> {
   for (const test of STRESS_TESTS) {
+    await yieldToEventLoop();
+    signal?.throwIfAborted();
     const found = await decode(test.prepare(canvas, scale));
     if (!found.includes(expected)) return false;
   }

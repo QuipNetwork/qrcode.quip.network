@@ -25,10 +25,15 @@ export interface GenerateOptions {
   border: Border;
   style: Style;
   ratios?: readonly number[];
+  /** Aborts the ladder between ratios and stress tests, so a stale run stops instead of finishing. */
+  signal?: AbortSignal;
 }
 
+/** Gives the event loop a turn, so the browser can paint "Checking…" and process input. */
+const yieldToEventLoop = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
+
 export async function generate(options: GenerateOptions): Promise<Result> {
-  const { data, border, style, ratios = ICON_RATIOS } = options;
+  const { data, border, style, ratios = ICON_RATIOS, signal } = options;
   if (data === "") return { ok: false, reason: "empty" };
 
   let matrix: Matrix;
@@ -47,8 +52,10 @@ export async function generate(options: GenerateOptions): Promise<Result> {
   }
 
   for (const iconRatio of ratios) {
+    await yieldToEventLoop();
+    signal?.throwIfAborted();
     const { canvas, layout } = renderQr({ matrix, border, iconRatio, ...images });
-    if (await isScannable(canvas, data, VERIFY_MODULE_PX / layout.box)) {
+    if (await isScannable(canvas, data, VERIFY_MODULE_PX / layout.box, signal)) {
       return { ok: true, canvas, data, iconRatio, shrunk: iconRatio !== ratios[0] };
     }
   }
