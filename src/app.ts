@@ -124,6 +124,8 @@ export function initApp(root: HTMLElement, options: AppOptions = {}): void {
   }
 
   const schedule = () => {
+    sequence++; // Invalidate any in-flight update before it can publish a stale result.
+    download.disabled = true;
     clearTimeout(timer);
     timer = setTimeout(() => void update(), DEBOUNCE_MS);
   };

@@ -2,6 +2,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { DEFAULT_INPUT, MESSAGES, initApp } from "../src/app";
+import * as generateModule from "../src/generate";
+import type { Result } from "../src/generate";
+
+vi.mock("../src/generate", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../src/generate")>();
+  return { ...actual, generate: vi.fn(actual.generate) };
+});
 
 let root: HTMLElement;
 const $ = <T extends Element>(selector: string) => root.querySelector<T>(selector)!;
@@ -55,6 +62,45 @@ describe("app", () => {
     await userEvent.click($('input[name="border"][value="black"]'));
     await userEvent.fill($("#url"), "https://learn.quip.network/");
     await userEvent.click($('.style[data-style="b-inverse"]'));
+    await vi.waitFor(() => {
+      expect($("#status").getAttribute("data-state")).toBe("ok");
+      expect($("#preview").getAttribute("data-encoded")).toBe("https://learn.quip.network/");
+    }, settle);
+  });
+
+  it("does not publish a stale result from an earlier keystroke", async () => {
+    await vi.waitFor(() => expect($("#status").getAttribute("data-state")).toBe("ok"), settle);
+
+    const mockedGenerate = vi.mocked(generateModule.generate);
+    let resolveStale!: (result: Result) => void;
+    const stale = new Promise<Result>((resolve) => {
+      resolveStale = resolve;
+    });
+    mockedGenerate.mockImplementationOnce(() => stale);
+
+    const url = $<HTMLInputElement>("#url");
+    url.value = "https://links.quip.network/";
+    url.dispatchEvent(new Event("input", { bubbles: true }));
+    await vi.waitFor(() => expect(mockedGenerate).toHaveBeenCalledTimes(2), settle);
+
+    // Type a second value before the first generation resolves.
+    url.value = "https://learn.quip.network/";
+    url.dispatchEvent(new Event("input", { bubbles: true }));
+    expect($<HTMLButtonElement>("#download").disabled).toBe(true);
+
+    // Resolve the stale (first) generation now, while the second is still pending.
+    resolveStale({
+      ok: true,
+      canvas: document.createElement("canvas"),
+      data: "https://links.quip.network/",
+      iconRatio: 0.22,
+      shrunk: false,
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect($("#preview").getAttribute("data-encoded")).not.toBe("https://links.quip.network/");
+    expect($<HTMLButtonElement>("#download").disabled).toBe(true);
+
     await vi.waitFor(() => {
       expect($("#status").getAttribute("data-state")).toBe("ok");
       expect($("#preview").getAttribute("data-encoded")).toBe("https://learn.quip.network/");
