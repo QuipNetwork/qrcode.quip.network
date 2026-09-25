@@ -1,0 +1,23 @@
+repos:
+  - repo: local
+    hooks:
+      - id: format
+        name: prettier
+        entry: bun run format:check
+        language: system
+        pass_filenames: false
+      - id: lint
+        name: eslint
+        entry: bun run lint
+        language: system
+        pass_filenames: false
+      - id: typecheck
+        name: tsc
+        entry: bun run typecheck
+        language: system
+        pass_filenames: false
+      - id: test
+        name: vitest
+        entry: bun run test
+        language: system
+        pass_filenames: false
