@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.local
+.DS_Store
+CLAUDE.md
+.beads/
+.beads-*/
+.beads-credential-key
+.dolt/
+acceptance-output/
+.superpowers/
