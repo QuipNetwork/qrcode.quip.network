@@ -23,6 +23,28 @@ h1 {
   font-size: 1.5rem;
 }
 
+.intro,
+.instructions p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.instructions {
+  display: grid;
+  gap: 8px;
+  line-height: 1.5;
+}
+
+.instructions h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.instructions ol {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
 .field {
   display: grid;
   gap: 6px;

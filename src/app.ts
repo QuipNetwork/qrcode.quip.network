@@ -2,7 +2,8 @@
 import { type Failure, type Success, generate } from "./generate";
 import { filenameFor, normalizeInput } from "./input";
 import type { Border } from "./render";
-import { STYLES, type Style, gradientUrl, iconUrl, randomStyle } from "./styles";
+import { STYLES, type Style, randomStyle } from "./styles";
+import { TEMPLATE } from "./template";
 
 export const DEBOUNCE_MS = 150;
 export const DEFAULT_INPUT = "https://quip.network/";
@@ -14,45 +15,6 @@ export const MESSAGES: Record<Failure, string> = {
   "load-failed": "Could not load the style images. Reload the page.",
 };
 const UNEXPECTED = "Something went wrong. Reload the page.";
-
-const BORDERS: readonly Border[] = ["white", "black", "transparent"];
-const capitalize = (word: string) => word[0]!.toUpperCase() + word.slice(1);
-
-const TEMPLATE = `
-<main class="app">
-  <h1>Quip QR code</h1>
-  <label class="field">URL
-    <input id="url" type="text" inputmode="url" autocomplete="off" spellcheck="false">
-  </label>
-  <p id="encoded" class="hint" hidden></p>
-  <fieldset class="borders">
-    <legend>Border</legend>
-    ${BORDERS.map(
-      (b) =>
-        `<label><input type="radio" name="border" value="${b}"${b === "white" ? " checked" : ""}> ${capitalize(b)}</label>`,
-    ).join("")}
-  </fieldset>
-  <fieldset class="styles">
-    <legend>Style</legend>
-    <div class="style-list">
-      ${STYLES.map(
-        (s) =>
-          `<button type="button" class="style" data-style="${s.id}" aria-pressed="false"
-             aria-label="Gradient ${s.gradient.toUpperCase()}, ${s.icon} icon"
-             style="background-image:url('${gradientUrl(s.gradient)}')">
-             <img src="${iconUrl(s.icon)}" alt="">
-           </button>`,
-      ).join("")}
-    </div>
-    <button type="button" id="shuffle">Shuffle</button>
-  </fieldset>
-  <div id="preview" class="preview"></div>
-  <p id="status" class="status" role="status" data-state=""></p>
-  <button type="button" id="download" disabled>Download PNG</button>
-  <footer class="footer">
-    <a href="https://gitlab.com/quip.network/qrcode.quip.network" rel="noopener">Source (AGPL-3.0)</a>
-  </footer>
-</main>`;
 
 export interface AppOptions {
   random?: () => number;
