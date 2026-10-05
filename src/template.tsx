@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-/** @jsx h */
-/** @jsxRuntime classic */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { h, renderToStaticMarkup } from "./jsx.ts";
+/** @jsxImportSource preact */
+import { renderToStaticMarkup } from "preact-render-to-string";
 import type { Border } from "./render.ts";
 import { STYLES, type GradientId, gradientUrl, iconUrl } from "./styles.ts";
 
@@ -23,7 +21,7 @@ const appMain = (
     </noscript>
     <label class="field">
       URL
-      <input id="url" type="text" inputmode="url" autocomplete="off" spellcheck="false" />
+      <input id="url" type="text" inputmode="url" autocomplete="off" spellcheck={false} />
     </label>
     <p id="encoded" class="hint" hidden></p>
     <fieldset class="borders">

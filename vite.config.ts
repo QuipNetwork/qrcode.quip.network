@@ -6,8 +6,8 @@ import { APP_HTML } from "./src/template.tsx";
 export default defineConfig({
   oxc: {
     jsx: {
-      runtime: "classic",
-      pragma: "h",
+      runtime: "automatic",
+      importSource: "preact",
     },
   },
   plugins: [
