@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#!/bin/sh
+# Run a command inside the project's Bun container.
+# The working directory is mounted at /app. The host needs no JS/TS tooling.
+# The image adds headless-Chromium system libraries to oven/bun 1.4.2
+# (matching netlify.toml and CI) and is built on first use. A named volume
+# persists the Playwright browser cache across runs.
+# Usage: ./run <command> [args...]  (e.g. ./run bun install)
+set -eu
+IMAGE="${RUN_IMAGE:-qrcode-quip-network-dev}"
+PLAYWRIGHT_CACHE_VOL="${PLAYWRIGHT_CACHE_VOL:-qrcode-quip-network-playwright-cache}"
+if ! podman image exists "$IMAGE" >/dev/null 2>&1; then
+  DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+  podman build -t "$IMAGE" -f "$DIR/Dockerfile" "$DIR"
+fi
+exec podman run --rm \
+  -v "${PWD}:/app" \
+  -w /app \
+  -e PLAYWRIGHT_BROWSERS_PATH=/playwright-browsers \
+  -v "${PLAYWRIGHT_CACHE_VOL}:/playwright-browsers" \
+  "$IMAGE" "$@"

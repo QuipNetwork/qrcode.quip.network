@@ -3,21 +3,21 @@ repos:
     hooks:
       - id: format
         name: prettier
-        entry: bun run format:check
+        entry: ./run bun run format:check
         language: system
         pass_filenames: false
       - id: lint
         name: eslint
-        entry: bun run lint
+        entry: ./run bun run lint
         language: system
         pass_filenames: false
       - id: typecheck
         name: tsc
-        entry: bun run typecheck
+        entry: ./run bun run typecheck
         language: system
         pass_filenames: false
       - id: test
         name: vitest
-        entry: bun run test
+        entry: ./run bun run test
         language: system
         pass_filenames: false

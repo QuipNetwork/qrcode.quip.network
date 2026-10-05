@@ -7,15 +7,19 @@ Static Vite + TypeScript site. No server code. Netlify builds it with
 
 ## Commands
 
-    bun install
-    bunx playwright install chromium   # once, for browser tests
-    bun run dev
-    bun run test        # Vitest browser mode, headless Chromium
-    bun run lint
-    bun run typecheck
-    bun run format
-    brew install zbar    # once, for zbarimg
-    bun scripts/acceptance.ts <site-url>   # download each test URL's PNG and decode it with zbarimg
+The host has no JS/TS tooling. Run everything inside the Podman container
+(the working directory is mounted at `/app`) via the `./run` helper, which
+uses the `docker.io/oven/bun:1.4.2` image (matching `netlify.toml`):
+
+    ./run bun install
+    ./run bunx playwright install chromium   # once, for browser tests
+    ./run bun run dev
+    ./run bun run test        # Vitest browser mode, headless Chromium
+    ./run bun run lint
+    ./run bun run typecheck
+    ./run bun run format
+    brew install zbar    # once, for zbarimg (host tool, used outside the container)
+    ./run bun scripts/acceptance.ts <site-url>   # download each test URL's PNG and decode it with zbarimg
 
 prek runs format, lint, typecheck, and test before each commit
 (`prek install` once per clone).

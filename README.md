@@ -6,15 +6,18 @@ the download.
 
 ## Development
 
-    bun install
-    bunx playwright install chromium
-    bun run dev
+The host needs no JS/TS tooling. Every command runs inside a Podman
+container (the working directory is mounted at `/app`) via `./run`:
+
+    ./run bun install
+    ./run bunx playwright install chromium
+    ./run bun run dev
 
 ## Checks
 
-    bun run lint
-    bun run typecheck
-    bun run test
+    ./run bun run lint
+    ./run bun run typecheck
+    ./run bun run test
 
 ## License
 
