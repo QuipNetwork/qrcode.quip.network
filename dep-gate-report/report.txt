@@ -1,7 +1,0 @@
-DEPENDENCY GATE FAILED for stable tag (no tag).
-A stable release must not ship prerelease dependencies or dependencies published less than 7 days ago.
-Fix every problem below, then tag again.
-
-Prerelease dependencies
-  npm @polka/url 1.0.0-next.29  1.0.0-next.29 is a prerelease  [bun.lock]
-Pin a stable release. For a git dependency, pin a commit that a stable tag points to (`tag = "vX.Y.Z"`).
