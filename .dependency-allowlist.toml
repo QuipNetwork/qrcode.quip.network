@@ -1,0 +1,6 @@
+[[allow]]
+ecosystem = "npm"
+name = "@polka/url"
+version = "1.0.0-next.29"
+commit = "02cbdb529ddca0a9f3d225e2abb2931924219cc3"
+reason = "dev-only via sirv 3.0.2; every published version is a -next prerelease"
