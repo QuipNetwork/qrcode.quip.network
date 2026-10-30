@@ -1,0 +1,14 @@
+[
+  {
+    "description": "npm @polka/url 1.0.0-next.29  1.0.0-next.29 is a prerelease  [bun.lock]",
+    "check_name": "dep-gate/prerelease",
+    "fingerprint": "94c13cca85d5d1dfa0ef6c096720699078f04beda43463e011cbaa52c07f6d8c",
+    "severity": "major",
+    "location": {
+      "path": "bun.lock",
+      "lines": {
+        "begin": 1
+      }
+    }
+  }
+]
